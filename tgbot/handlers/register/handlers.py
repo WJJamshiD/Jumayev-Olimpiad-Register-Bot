@@ -211,9 +211,9 @@ def get_certificate(update: Update, context: CallbackContext):
         certificate_editable.text((230, 435), text, (0, 0, 0), font=text_font)
         path_for_new_certificate = os.path.join(BASE_DIR, "certificates", f"certificate-user-{user.user_id}.jpg")
         print('path for new', path_for_new_certificate)
+        certificate_template.save(path_for_new_certificate)
         user.certificate = os.path.join("certificates", f"certificate-user-{user.user_id}.jpg")
         user.save()
-        certificate_template.save(path_for_new_certificate)
         print('saved', certificate_template)
         with open(path_for_new_certificate, "rb") as certificate:
             print(' read new cer', certificate)
