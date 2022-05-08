@@ -8,12 +8,13 @@ django
 django-timezone-field 
 django-cors-headers
 django-debug-toolbar
+pillow
 whitenoise
 
 # Django 3.0 async requirements
 gunicorn
-uvicorn
-uvloop
+# uvicorn
+# uvloop
 httptools
 
 # Databases

@@ -35,7 +35,7 @@ def extract_user_data_from_update(update: Update) -> Dict:
         is_blocked_bot=False,
         **{
             k: user[k]
-            for k in ["username", "first_name", "last_name", "language_code"]
+            for k in ["username", "first_name", "language_code"]
             if k in user and user[k] is not None
         },
     )

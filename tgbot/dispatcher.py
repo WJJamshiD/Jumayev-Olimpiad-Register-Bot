@@ -10,6 +10,7 @@ from telegram import Bot, Update, BotCommand
 from telegram.ext import (
     Updater, Dispatcher, Filters,
     CommandHandler, MessageHandler,
+    ConversationHandler,
     CallbackQueryHandler,
 )
 
@@ -24,39 +25,40 @@ from tgbot.handlers.broadcast_message import handlers as broadcast_handlers
 from tgbot.handlers.onboarding.manage_data import SECRET_LEVEL_BUTTON
 from tgbot.handlers.broadcast_message.manage_data import CONFIRM_DECLINE_BROADCAST
 from tgbot.handlers.broadcast_message.static_text import broadcast_command
-
+from tgbot.handlers.register import handlers as register_handlers
 
 def setup_dispatcher(dp):
     """
     Adding handlers for events from Telegram
     """
     # onboarding
-    dp.add_handler(CommandHandler("start", onboarding_handlers.command_start))
+    # dp.add_handler(CommandHandler("start", onboarding_handlers.command_start))
 
     # admin commands
-    dp.add_handler(CommandHandler("admin", admin_handlers.admin))
-    dp.add_handler(CommandHandler("stats", admin_handlers.stats))
-    dp.add_handler(CommandHandler('export_users', admin_handlers.export_users))
+    # dp.add_handler(CommandHandler("admin", admin_handlers.admin))
+    # dp.add_handler(CommandHandler("stats", admin_handlers.stats))
+    # dp.add_handler(CommandHandler('export_users', admin_handlers.export_users))
 
-    # location
-    dp.add_handler(CommandHandler("ask_location", location_handlers.ask_for_location))
-    dp.add_handler(MessageHandler(Filters.location, location_handlers.location_handler))
+    # # location
+    # dp.add_handler(CommandHandler("ask_location", location_handlers.ask_for_location))
+    # dp.add_handler(MessageHandler(Filters.location, location_handlers.location_handler))
 
-    # secret level
-    dp.add_handler(CallbackQueryHandler(onboarding_handlers.secret_level, pattern=f"^{SECRET_LEVEL_BUTTON}"))
+    # # secret level
+    # dp.add_handler(CallbackQueryHandler(onboarding_handlers.secret_level, pattern=f"^{SECRET_LEVEL_BUTTON}"))
 
-    # broadcast message
-    dp.add_handler(
-        MessageHandler(Filters.regex(rf'^{broadcast_command}(/s)?.*'), broadcast_handlers.broadcast_command_with_message)
-    )
-    dp.add_handler(
-        CallbackQueryHandler(broadcast_handlers.broadcast_decision_handler, pattern=f"^{CONFIRM_DECLINE_BROADCAST}")
-    )
+    # # broadcast message
+    # dp.add_handler(
+    #     MessageHandler(Filters.regex(rf'^{broadcast_command}(/s)?.*'), broadcast_handlers.broadcast_command_with_message)
+    # )
+    # dp.add_handler(
+    #     CallbackQueryHandler(broadcast_handlers.broadcast_decision_handler, pattern=f"^{CONFIRM_DECLINE_BROADCAST}")
+    # )
+
 
     # files
-    dp.add_handler(MessageHandler(
-        Filters.animation, files.show_file_id,
-    ))
+    # dp.add_handler(MessageHandler(
+    #     Filters.animation, files.show_file_id,
+    # ))
 
     # handling errors
     dp.add_error_handler(error.send_stacktrace_to_tg_chat)
@@ -72,7 +74,45 @@ def setup_dispatcher(dp):
     #     # & Filters.forwarded & (Filters.photo | Filters.video | Filters.animation),
     #     <function_handler>,
     # ))
+    MENU_HANDLERS = [
+        MessageHandler(Filters.text("👤 Profilim"), register_handlers.my_profile),
+        MessageHandler(Filters.text("🎫 Sertifikat"), register_handlers.get_certificate),
+        MessageHandler(Filters.text("🥇 Natijalar"), register_handlers.get_results),
+        MessageHandler(Filters.text("ℹ️ Ma'lumot"), register_handlers.get_info),
+        MessageHandler(Filters.text("📈 Statistika"), register_handlers.get_statistics),
+        MessageHandler(Filters.text("🤝 Hamkorlar"), register_handlers.get_partners),
+    ]
+    dp.add_handler(
+        ConversationHandler(
+            entry_points = [
+                CommandHandler('start', register_handlers.command_start),
+                *MENU_HANDLERS
+            ],
+            states = {
+                0:  [
+                        MessageHandler(Filters.text("📝 Ro'yxatdan o'tish"), register_handlers.register_0),
+                        *MENU_HANDLERS
+                    ],
+                1:  [MessageHandler(Filters.text, register_handlers.register_1)],
+                2:  [MessageHandler(Filters.text, register_handlers.register_2)],
+                3:  [MessageHandler(Filters.text, register_handlers.register_3)],
+                4:  [MessageHandler(Filters.text, register_handlers.register_4)],
+                5:  [MessageHandler(Filters.text, register_handlers.register_5)],
+                6:  [MessageHandler(Filters.text, register_handlers.register_6),
+                     MessageHandler(Filters.contact, register_handlers.register_6),
+                    ],
+                'menu': MENU_HANDLERS
+            },
+            fallbacks = [
+                CommandHandler('start', register_handlers.command_start),
+                *MENU_HANDLERS,
+                MessageHandler(Filters.all, register_handlers.delete_msg)
+            ]
+        )
+    )  
 
+ 
+ 
     return dp
 
 

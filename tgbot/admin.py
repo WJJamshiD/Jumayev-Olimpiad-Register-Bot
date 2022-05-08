@@ -4,8 +4,7 @@ from django.shortcuts import render
 
 from dtb.settings import DEBUG
 
-from tgbot.models import Location
-from tgbot.models import User
+from tgbot.models import User, Region, District, Location
 from tgbot.forms import BroadcastForm
 
 from tgbot.tasks import broadcast_message
@@ -49,6 +48,17 @@ class UserAdmin(admin.ModelAdmin):
             )
 
 
-@admin.register(Location)
+class DistrictInlineAdmin(admin.TabularInline):
+    model = District
+    extra = 0
+
+@admin.register(Region)
+class RegionAdmin(admin.ModelAdmin):
+    list_display = ['id', 'name']
+    list_display_links = ['id', 'name']
+    inlines = [DistrictInlineAdmin]
+
+
+#@admin.register(Location)
 class LocationAdmin(admin.ModelAdmin):
     list_display = ['id', 'user_id', 'created_at']

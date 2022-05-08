@@ -24,6 +24,18 @@ class User(CreateUpdateTracker):
     last_name = models.CharField(max_length=256, **nb)
     language_code = models.CharField(max_length=8, help_text="Telegram client's lang", **nb)
     deep_link = models.CharField(max_length=64, **nb)
+    ### additional fields for olympiad registration bot ###
+    region = models.ForeignKey("Region", on_delete=models.CASCADE, null=True, blank=True)
+    district = models.ForeignKey("District", on_delete=models.CASCADE, null=True, blank=True)
+    school = models.CharField(max_length=100, null=True, blank=True)
+    grade = models.CharField(max_length=50, null=True, blank=True)
+    phone = models.CharField(max_length=13, null=True, blank=True)
+    teacher_name = models.CharField(max_length=20, null=True, blank=True)
+    is_contestant = models.BooleanField(default=False)
+    photo = models.ImageField(upload_to='contestants', null=True, blank=True)
+    certificate = models.ImageField(upload_to='certificates', null=True, blank=True)
+    diploma = models.ImageField(upload_to='diplomas', null=True, blank=True)
+    ### additional fields for olympiad registration bot ###
 
     is_blocked_bot = models.BooleanField(default=False)
 
@@ -73,6 +85,35 @@ class User(CreateUpdateTracker):
         if self.username:
             return f'@{self.username}'
         return f"{self.first_name} {self.last_name}" if self.last_name else f"{self.first_name}"
+
+
+#### custom models added for olympiad registration bot ####
+class Region(CreateUpdateTracker):
+    name = models.CharField(max_length=50)
+
+    objects = GetOrNoneManager()
+    
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+
+class District(CreateUpdateTracker):
+    name = models.CharField(max_length=50)
+    region = models.ForeignKey(Region, on_delete=models.CASCADE, related_name='districts')
+
+    objects = GetOrNoneManager()
+
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+
+#### custom models added for olympiad registration bot ####
 
 
 class Location(CreateTracker):

@@ -1,6 +1,4 @@
-# start_created = "Sup, {first_name}!"
 start_created = "Xush kelibsiz! Ushbu bot orqali Jumayev olimpiadasiga ro'yxatdan o'tishingiz mumkin!"
-
 start_not_created = "Xush kelibsiz, {first_name}!"
 
 unlock_secret_room = "Congratulations! You've opened a secret room👁‍🗨. There is some information for you:\n" \
